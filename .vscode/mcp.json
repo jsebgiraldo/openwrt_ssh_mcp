@@ -1,0 +1,13 @@
+{
+	"servers": {
+		"my-mcp-server-250da806": {
+			"type": "stdio",
+			"command": "python",
+			"args": [
+				"-m",
+				"openwrt_ssh_mcp.server"
+			]
+		}
+	},
+	"inputs": []
+}

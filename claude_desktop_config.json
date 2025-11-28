@@ -1,0 +1,35 @@
+{
+  "mcpServers": {
+    "openwrt-router-docker": {
+      "command": "docker",
+      "args": [
+        "run",
+        "--rm",
+        "-i",
+        "--network", "host",
+        "--env-file", "C:\\Users\\Luis Antonio\\Documents\\UNAL\\MCPs-OpenWRT\\.env",
+        "--mount", "type=bind,src=C:\\Users\\Luis Antonio\\.ssh,dst=/root/.ssh,readonly",
+        "--mount", "type=bind,src=C:\\Users\\Luis Antonio\\Documents\\UNAL\\MCPs-OpenWRT\\logs,dst=/app/logs",
+        "--read-only",
+        "--tmpfs", "/tmp:rw,noexec,nosuid,size=50m",
+        "--cap-drop", "ALL",
+        "--security-opt", "no-new-privileges:true",
+        "openwrt-ssh-mcp:latest"
+      ]
+    },
+    "openwrt-router-local": {
+      "command": "python",
+      "args": ["-m", "openwrt_ssh_mcp.server"],
+      "env": {
+        "OPENWRT_HOST": "192.168.1.1",
+        "OPENWRT_PORT": "22",
+        "OPENWRT_USER": "root",
+        "OPENWRT_KEY_FILE": "C:\\Users\\Luis Antonio\\.ssh\\openwrt_router",
+        "SSH_TIMEOUT": "30",
+        "ENABLE_COMMAND_VALIDATION": "true",
+        "ENABLE_AUDIT_LOGGING": "true",
+        "LOG_FILE": "C:\\Users\\Luis Antonio\\Documents\\UNAL\\MCPs-OpenWRT\\openwrt_mcp.log"
+      }
+    }
+  }
+}

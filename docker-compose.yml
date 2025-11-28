@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  openwrt-mcp:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    image: openwrt-ssh-mcp:latest
+    container_name: openwrt-ssh-mcp
+    # CRITICAL: stdin_open for stdio MCP transport
+    stdin_open: true
+    tty: true
+    env_file:
+      - .env
+    volumes:
+      # Mount SSH keys (read-only for security)
+      - ${SSH_KEY_PATH:-${HOME}/.ssh}:/root/.ssh:ro
+      # Persistent logs
+      - ./logs:/app/logs
+    # Use host network for direct router access (simpler)
+    network_mode: host
+    # Don't auto-restart - MCP client manages lifecycle
+    restart: "no"
+    # Security hardening
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=50m
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    # Health check (optional)
+    healthcheck:
+      test: ["CMD", "python", "-c", "import sys; sys.exit(0)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+# Alternative: Bridge network with custom DNS
+#networks:
+#  openwrt-network:
+#    driver: bridge
+#    ipam:
+#      config:
+#        - subnet: 172.20.0.0/16

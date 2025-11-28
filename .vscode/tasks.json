@@ -1,0 +1,101 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Start MCP Server (Python)",
+      "type": "shell",
+      "command": "python",
+      "args": [
+        "-m",
+        "openwrt_ssh_mcp.server"
+      ],
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "focus": false,
+        "showReuseMessage": false
+      },
+      "isBackground": true,
+      "runOptions": {
+        "instanceLimit": 1
+      }
+    },
+    {
+      "label": "Start MCP Server (Docker)",
+      "type": "shell",
+      "command": "docker",
+      "args": [
+        "run",
+        "--rm",
+        "-i",
+        "--name",
+        "openwrt-mcp-vscode",
+        "--network",
+        "host",
+        "--env-file",
+        "${workspaceFolder}/.env",
+        "--mount",
+        "type=bind,src=${env:USERPROFILE}\\.ssh,dst=/root/.ssh,readonly",
+        "--mount",
+        "type=bind,src=${workspaceFolder}\\logs,dst=/app/logs",
+        "--read-only",
+        "--tmpfs",
+        "/tmp:rw,noexec,nosuid,size=50m",
+        "--cap-drop",
+        "ALL",
+        "--security-opt",
+        "no-new-privileges:true",
+        "openwrt-ssh-mcp:latest"
+      ],
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "focus": false,
+        "showReuseMessage": false
+      },
+      "isBackground": true,
+      "runOptions": {
+        "instanceLimit": 1
+      }
+    },
+    {
+      "label": "Stop MCP Server (Docker)",
+      "type": "shell",
+      "command": "docker",
+      "args": [
+        "stop",
+        "openwrt-mcp-vscode"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "View MCP Logs",
+      "type": "shell",
+      "command": "Get-Content",
+      "args": [
+        "${workspaceFolder}\\openwrt_mcp.log",
+        "-Tail",
+        "50",
+        "-Wait"
+      ],
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "focus": true
+      }
+    },
+    {
+      "label": "Test SSH Connection",
+      "type": "shell",
+      "command": "ssh",
+      "args": [
+        "root@100.93.80.37",
+        "uname -a"
+      ],
+      "problemMatcher": []
+    }
+  ]
+}

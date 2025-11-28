@@ -1,0 +1,64 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Python
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+*.egg
+*.egg-info
+dist
+build
+
+# Virtual Environment
+venv/
+env/
+ENV/
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# Documentation (not needed in container)
+archive/
+PRODUCTION_READY.md
+CONTRIBUTING.md
+CHANGELOG.md
+TEST_OPKG.md
+*.md
+!README.md
+
+# Logs (will be mounted as volume)
+logs/
+*.log
+
+# Environment (will be passed at runtime)
+.env
+.env.example
+
+# Docker
+docker-compose.yml
+Dockerfile
+.dockerignore
+
+# Scripts (not needed in container)
+*.ps1
+*.sh
+
+# Tests (not needed in production)
+tests/
+pytest.ini
+
+# Workspace files
+*.code-workspace
+mcp-openwrt.code-workspace
+
+# Config files for external tools
+claude_desktop_config.json
