@@ -2,6 +2,7 @@
 
 import json
 import logging
+import re
 from typing import Any
 
 from .ssh_client import ssh_client

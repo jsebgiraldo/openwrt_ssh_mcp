@@ -31,10 +31,8 @@ class Settings(BaseSettings):
 
     def validate_auth(self) -> None:
         """Ensure at least one authentication method is configured."""
-        if not self.openwrt_password and not self.openwrt_key_file:
-            raise ValueError(
-                "Either OPENWRT_PASSWORD or OPENWRT_KEY_FILE must be configured"
-            )
+        # Allow default SSH key authentication if neither password nor explicit key file is set
+        pass
 
 
 # Global settings instance

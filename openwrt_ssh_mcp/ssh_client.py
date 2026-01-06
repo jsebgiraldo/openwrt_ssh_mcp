@@ -42,7 +42,7 @@ class SSHClient:
                 "keepalive_interval": settings.ssh_keepalive_interval,
             }
 
-            # Authentication: prefer key over password
+            # Authentication: prefer key over password, allow default keys
             if settings.openwrt_key_file:
                 logger.info(f"Using SSH key authentication: {settings.openwrt_key_file}")
                 connect_kwargs["client_keys"] = [settings.openwrt_key_file]
@@ -50,7 +50,9 @@ class SSHClient:
                 logger.info("Using password authentication")
                 connect_kwargs["password"] = settings.openwrt_password
             else:
-                raise ValueError("No authentication method configured")
+                # Use default SSH keys (~/.ssh/id_rsa, id_ed25519, etc.)
+                logger.info("Using default SSH key authentication")
+                # asyncssh will automatically try default keys
 
             # Establish connection
             self.connection = await asyncssh.connect(**connect_kwargs)

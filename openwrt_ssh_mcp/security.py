@@ -28,6 +28,7 @@ class SecurityValidator:
         r"^uci show wireless$",  # Wireless config
         r"^uci show dhcp$",  # DHCP config
         r"^uci show firewall$",  # Firewall config
+        r"^uci show system$",  # System config
         r"^uci get \w+\.\S+$",  # Get specific UCI value
         
         # System information (read-only)
