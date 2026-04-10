@@ -1,4 +1,4 @@
-"""Script para verificar el estado de IPv6 en OpenWRT."""
+"""Script to verify IPv6 status on OpenWRT."""
 
 import asyncio
 import sys
@@ -10,35 +10,34 @@ from openwrt_ssh_mcp.ssh_client import ssh_client
 from openwrt_ssh_mcp.tools import OpenWRTTools
 
 async def check_ipv6():
-    """Verifica la configuración de IPv6."""
-    
+    """Verify the IPv6 configuration on the router."""
+
     print("=" * 70)
-    print("📋 VERIFICACIÓN DE IPv6 EN OPENWRT")
+    print("IPv6 STATUS CHECK — OPENWRT")
     print("=" * 70)
-    
+
     await ssh_client.connect()
     tools = OpenWRTTools()
-    
-    # 1. Ver configuración de red actual
-    print("\n🌐 1. CONFIGURACIÓN DE RED ACTUAL (UCI)")
+
+    # 1. Current network UCI config
+    print("\n1. CURRENT NETWORK CONFIGURATION (UCI)")
     print("-" * 70)
     result = await tools.read_config("network")
     if result["success"]:
         config = result.get("config", "")
-        # Filtrar líneas relacionadas con IPv6
         for line in config.split("\n"):
             if "ipv6" in line.lower() or "ip6" in line.lower() or line.startswith("network.wan") or line.startswith("network.lan"):
                 print(line)
-    
-    # 2. Interfaces y direcciones IPv6
-    print("\n📡 2. DIRECCIONES IPv6 ASIGNADAS")
+
+    # 2. Assigned IPv6 addresses
+    print("\n2. ASSIGNED IPv6 ADDRESSES")
     print("-" * 70)
     result = await ssh_client.execute("ip -6 addr show")
     if result["success"]:
         print(result["stdout"])
-    
-    # 3. Rutas IPv6
-    print("\n🛣️ 3. RUTAS IPv6")
+
+    # 3. IPv6 routes
+    print("\n3. IPv6 ROUTES")
     print("-" * 70)
     result = await ssh_client.execute("ip -6 route show")
     if result["success"]:
@@ -46,54 +45,54 @@ async def check_ipv6():
         if routes:
             print(routes)
         else:
-            print("⚠️ No hay rutas IPv6 configuradas")
-    
-    # 4. Estado de DHCPv6 y SLAAC
-    print("\n🔧 4. ESTADO DE SERVICIOS IPv6")
+            print("No IPv6 routes configured")
+
+    # 4. DHCPv6 / SLAAC services
+    print("\n4. IPv6 SERVICE STATUS")
     print("-" * 70)
     result = await ssh_client.execute("ps | grep -E 'odhcp|dhcp6'")
     if result["success"]:
         output = result["stdout"].strip()
         if output:
-            print("Servicios DHCP activos:")
+            print("Active DHCP processes:")
             print(output)
         else:
-            print("⚠️ No se detectaron procesos DHCPv6")
-    
-    # 5. Configuración de firewall para IPv6
-    print("\n🔒 5. REGLAS DE FIREWALL IPv6")
+            print("No DHCPv6 processes detected")
+
+    # 5. IPv6 firewall rules
+    print("\n5. IPv6 FIREWALL RULES")
     print("-" * 70)
     result = await ssh_client.execute("ip6tables -L -n | head -20")
     if result["success"]:
         print(result["stdout"])
-    
-    # 6. Conectividad IPv6 externa
-    print("\n🌍 6. PRUEBA DE CONECTIVIDAD IPv6")
+
+    # 6. External IPv6 connectivity
+    print("\n6. IPv6 CONNECTIVITY TEST")
     print("-" * 70)
     result = await ssh_client.execute("ping6 -c 3 2001:4860:4860::8888")
     if result["success"]:
         if "0% packet loss" in result["stdout"]:
-            print("✅ Conectividad IPv6 exitosa a Google DNS")
+            print("IPv6 connectivity to Google DNS: OK")
         else:
-            print("⚠️ Problemas de conectividad IPv6")
+            print("IPv6 connectivity issues detected")
         print(result["stdout"][:300])
     else:
-        print("❌ Sin conectividad IPv6 externa")
+        print("No external IPv6 connectivity")
         print(result["stderr"][:200])
-    
-    # 7. Información del ISP
-    print("\n📶 7. PREFIJO IPv6 DELEGADO (del ISP)")
+
+    # 7. ISP delegated prefix
+    print("\n7. DELEGATED IPv6 PREFIX (from ISP)")
     print("-" * 70)
     result = await ssh_client.execute("ubus call network.interface.wan6 status 2>/dev/null")
     if result["success"]:
         print(result["stdout"][:500])
     else:
-        print("⚠️ Interfaz wan6 no disponible")
-    
+        print("wan6 interface not available")
+
     await ssh_client.disconnect()
-    
+
     print("\n" + "=" * 70)
-    print("✅ VERIFICACIÓN COMPLETADA")
+    print("CHECK COMPLETE")
     print("=" * 70)
 
 if __name__ == "__main__":

@@ -60,17 +60,19 @@ A containerized MCP (Model Context Protocol) server for managing OpenWRT routers
 
 ## Installation
 
-### 1. Clone or create the project
+### 1. Clone the repository
 
 ```bash
-cd "c:\Users\Luis Antonio\Documents\UNAL\MCPs-OpenWRT"
+git clone https://github.com/jsebgiraldo/openwrt_ssh_mcp.git
+cd openwrt_ssh_mcp
 ```
 
 ### 2. Create virtual environment and install dependencies
 
 ```bash
 python -m venv venv
-.\venv\Scripts\activate  # Windows
+source venv/bin/activate  # Linux/Mac
+# .\venv\Scripts\activate  # Windows
 pip install -e .
 ```
 
@@ -78,7 +80,7 @@ pip install -e .
 
 ```bash
 # Copy example file
-copy .env.example .env
+cp .env.example .env
 
 # Edit .env with your router credentials
 ```
@@ -92,8 +94,8 @@ ssh-keygen -t ed25519 -f ~/.ssh/openwrt_router -C "MCP Server"
 # Copy to router
 ssh-copy-id -i ~/.ssh/openwrt_router.pub root@192.168.1.1
 
-# Update .env
-OPENWRT_KEY_FILE=C:\Users\YOUR_USER\.ssh\openwrt_router
+# Update OPENWRT_KEY_FILE in .env
+OPENWRT_KEY_FILE=~/.ssh/openwrt_router
 ```
 
 ## 🔧 Configuration
@@ -110,8 +112,8 @@ Includes optimized configuration in `claude_desktop_config.json`:
       "args": [
         "run", "--rm", "-i",
         "--network", "host",
-        "--env-file", "C:\\Users\\Luis Antonio\\Documents\\UNAL\\MCPs-OpenWRT\\.env",
-        "--mount", "type=bind,src=C:\\Users\\Luis Antonio\\.ssh,dst=/root/.ssh,readonly",
+        "--env-file", "${HOME}/Documents/openwrt_ssh_mcp/.env",
+        "--mount", "type=bind,src=${HOME}/.ssh,dst=/root/.ssh,readonly",
         "openwrt-ssh-mcp:latest"
       ]
     }
@@ -167,12 +169,17 @@ Use `docker-mcp.ps1` for all operations:
 - `openwrt_get_firewall_rules` - View firewall rules
 - `openwrt_read_config` - Read UCI config file
 
-### OpenThread Border Router (5 tools)
+### OpenThread Border Router (6 tools)
 - `openwrt_thread_get_state` - Current Thread state
 - `openwrt_thread_create_network` - Create new Thread network
 - `openwrt_thread_get_dataset` - Get network credentials
 - `openwrt_thread_get_info` - Complete Thread network info
 - `openwrt_thread_enable_commissioner` - Allow new devices
+- `openwrt_otbr_persist_network` - Save dataset + enable service + sysupgrade protection
+
+### Edge Observability & ThingsBoard (2 tools)
+- `openwrt_observability_health` - Check Prometheus, Grafana, blackbox-exporter status
+- `openwrt_thingsboard_probe` - Discover ThingsBoard config and verify TCP/HTTP reachability
 
 ### Package Management (6 tools)
 - `openwrt_opkg_update` - Update package lists
@@ -262,11 +269,11 @@ npx @modelcontextprotocol/inspector docker run -i --rm openwrt-ssh-mcp:latest
 
 ## 🐳 Docker Hub (Optional)
 
-```powershell
+```bash
 # Publish your image
 docker login
-docker tag openwrt-ssh-mcp:latest yourusername/openwrt-ssh-mcp:latest
-docker push yourusername/openwrt-ssh-mcp:latest
+docker tag openwrt-ssh-mcp:latest jsebgiraldo/openwrt-ssh-mcp:latest
+docker push jsebgiraldo/openwrt-ssh-mcp:latest
 ```
 
 ## 🛠️ Development
@@ -307,6 +314,35 @@ Contributions are welcome! Please:
 
 MIT
 
+## Edge 192.168.1.111 Runbook
+
+This section documents operational procedures for Sebastian's edge gateway.
+
+### Recreate Thread network
+
+```
+# Via Claude / MCP tools:
+openwrt_thread_create_network(name="auto", channel=15)
+openwrt_thread_enable_commissioner()
+openwrt_otbr_persist_network()
+```
+
+The dataset TLV backup is stored locally at `~/.config/openwrt-mcp/edge-111-otbr-dataset.tlvs` (not committed).
+
+### Check observability stack
+
+```
+openwrt_observability_health()
+```
+
+Prometheus: `http://192.168.1.111:9090` | Grafana: `http://192.168.1.111:3000` (default `admin/admin`) | Blackbox: `http://192.168.1.111:9115`
+
+### Re-probe ThingsBoard
+
+```
+openwrt_thingsboard_probe()   # auto-discover mode
+```
+
 ---
 
-**Made with ❤️ for the OpenWRT and MCP community**
+**Maintained by [Sebastian Giraldo](https://github.com/jsebgiraldo)**

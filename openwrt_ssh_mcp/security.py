@@ -93,6 +93,27 @@ class SecurityValidator:
         r"^(/usr/sbin/)?ot-ctl commissioner stop$",
         r"^(/usr/sbin/)?ot-ctl commissioner joiner add \* [\w\-]+$",
         
+        # OTBR persistence helpers
+        r"^mkdir -p /etc/otbr$",
+        r"^ls /etc/config/otbr-agent.*$",
+        r"^uci set otbr-agent\.\S+ .+$",
+        r"^uci commit otbr-agent$",
+        r"^/etc/init\.d/otbr-agent (enable|disable|start|stop|restart)$",
+        r"^grep -q[F]? '.+' /etc/(rc\.local|sysupgrade\.conf).*$",
+        r"^sed -i .+ /etc/rc\.local$",
+        r"^ss -ltn.*$",
+
+        # ThingsBoard probe helpers
+        r"^ps w$",
+        r"^ps w \| grep .+$",
+        r"^find /etc /opt /root -maxdepth 4 .+$",
+        r"^grep -E '.+' '.+' 2>/dev/null \| head -\d+$",
+        r"^nc -zv -w\d+ [\w\.\-]+ \d+.*$",
+        r"^curl -m\d+ -o /dev/null -s -w '.+' https?://[\w\.\-:]+.*$",
+        r"^docker ps .+$",
+        r"^docker ps$",
+        r"^uci show.*$",
+
         # Package management (opkg) commands
         r"^opkg update$",
         r"^opkg list$",
