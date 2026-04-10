@@ -1,56 +1,55 @@
 # Docker + MCP Toolkit Integration Guide
 
-## 🐳 Docker Desktop con MCP
+## Docker Desktop with MCP
 
-Esta guía muestra cómo usar tu servidor MCP OpenWRT con Docker Desktop y el MCP Toolkit.
+This guide shows how to use the OpenWRT MCP server with Docker Desktop and the MCP Toolkit.
 
-## Arquitectura
+## Architecture
 
 ```
-Claude/VS Code → Docker Container → SSH → Router OpenWRT
+Claude/VS Code → Docker Container → SSH → OpenWRT Router
                  (MCP Server)
 ```
 
-## Setup Rápido
+## Quick Setup
 
-### 1. Construir la Imagen Docker
+### 1. Build the Docker image
 
-```powershell
-cd "c:\Users\Luis Antonio\Documents\UNAL\MCPs-OpenWRT"
+```bash
+cd ~/Documents/openwrt_ssh_mcp
 
-# Construir imagen optimizada
+# Build optimized image
 docker build -t openwrt-ssh-mcp:latest .
 
-# Verificar imagen creada
-docker images | Select-String openwrt
+# Verify image
+docker images | grep openwrt
 ```
 
-### 2. Probar el Container Standalone
+### 2. Test the container standalone
 
-```powershell
-# Test interactivo con stdio transport
-docker run -i --rm `
-  --network host `
-  --env-file .env `
-  --mount type=bind,src=$HOME\.ssh,dst=/root/.ssh,readonly `
-  --mount type=bind,src=$PWD\logs,dst=/app/logs `
+```bash
+docker run -i --rm \
+  --network host \
+  --env-file .env \
+  --mount type=bind,src=${HOME}/.ssh,dst=/root/.ssh,readonly \
+  --mount type=bind,src=$(pwd)/logs,dst=/app/logs \
   openwrt-ssh-mcp:latest
 ```
 
-Deberías ver:
+Expected output:
 ```
 INFO - Starting OpenWRT SSH MCP Server...
 INFO - SSH connection established successfully
 INFO - MCP Server ready - waiting for requests...
 ```
 
-Presiona `Ctrl+C` para salir.
+Press `Ctrl+C` to stop.
 
-### 3. Configurar Claude Desktop
+### 3. Configure Claude Desktop
 
-Tienes **dos opciones** en `claude_desktop_config.json`:
+`claude_desktop_config.json` includes two configurations:
 
-#### Opción A: Via Docker (Recomendado para producción)
+#### Option A: Via Docker (recommended for production)
 ```json
 "openwrt-router-docker": {
   "command": "docker",
@@ -58,7 +57,7 @@ Tienes **dos opciones** en `claude_desktop_config.json`:
 }
 ```
 
-#### Opción B: Local directo (Desarrollo)
+#### Option B: Local Python (development)
 ```json
 "openwrt-router-local": {
   "command": "python",
@@ -66,164 +65,147 @@ Tienes **dos opciones** en `claude_desktop_config.json`:
 }
 ```
 
-**Copiar configuración:**
+**Copy config (macOS/Linux):**
+```bash
+cp claude_desktop_config.json "${HOME}/Library/Application Support/Claude/claude_desktop_config.json"
+```
+
+**Copy config (Windows):**
 ```powershell
 copy claude_desktop_config.json "$env:APPDATA\Claude\claude_desktop_config.json"
 ```
 
-### 4. Reiniciar Claude Desktop
+### 4. Restart Claude Desktop
 
-1. Cierra completamente Claude Desktop
-2. Vuelve a abrir
-3. El servidor MCP debería estar disponible
+1. Fully close Claude Desktop
+2. Reopen it
+3. The MCP server should be available
 
-## Verificación
+## Verification
 
-### Ver logs de Docker
+### View Docker logs
 
-```powershell
-# Si usas docker compose
-docker-compose logs -f
+```bash
+# If using docker compose
+docker compose logs -f
 
-# Si usas docker run directo
+# If using docker run
 docker logs openwrt-ssh-mcp
 ```
 
-### Ver logs del MCP Server
+### View MCP server logs
 
-```powershell
-# Logs del servidor
-cat .\logs\openwrt_mcp.log
+```bash
+# Server logs
+cat ./logs/openwrt_mcp.log
 
-# Ver en tiempo real
-Get-Content .\logs\openwrt_mcp.log -Wait
+# Follow in real time
+tail -f ./logs/openwrt_mcp.log
 ```
 
-### Probar con MCP Inspector
+### Test with MCP Inspector
 
-```powershell
-# Instalar inspector
+```bash
 npm install -g @modelcontextprotocol/inspector
-
-# Probar servidor en Docker
 npx @modelcontextprotocol/inspector docker run -i --rm openwrt-ssh-mcp:latest
 ```
 
-## Comandos Útiles
+## Useful Commands
 
-### Docker Management
+### Docker management
 
-```powershell
-# Construir y ejecutar
-docker-compose up --build
+```bash
+# Build and run
+docker compose up --build
 
-# Ejecutar en background
-docker-compose up -d
+# Run in background
+docker compose up -d
 
-# Ver logs
-docker-compose logs -f openwrt-mcp
+# View logs
+docker compose logs -f openwrt-mcp
 
-# Detener
-docker-compose down
+# Stop
+docker compose down
 
-# Limpiar todo
-docker-compose down -v
+# Clean everything
+docker compose down -v
 docker rmi openwrt-ssh-mcp:latest
 ```
 
 ### Testing
 
-```powershell
-# Test rápido de conectividad
-docker run -i --rm --network host --env-file .env `
-  --mount type=bind,src=$HOME\.ssh,dst=/root/.ssh,readonly `
-  openwrt-ssh-mcp:latest
-
-# Test con comando específico
-docker run -i --rm --network host --env-file .env `
-  --mount type=bind,src=$HOME\.ssh,dst=/root/.ssh,readonly `
+```bash
+# Quick connectivity test
+docker run -i --rm --network host --env-file .env \
+  --mount type=bind,src=${HOME}/.ssh,dst=/root/.ssh,readonly \
   openwrt-ssh-mcp:latest
 ```
 
-## Seguridad
+## Security
 
 ### SSH Keys
 
-```powershell
-# Generar llave dedicada para MCP
-ssh-keygen -t ed25519 -f $HOME\.ssh\mcp_openwrt -C "MCP Docker"
+```bash
+# Generate dedicated key for MCP
+ssh-keygen -t ed25519 -f ~/.ssh/mcp_openwrt -C "MCP Docker"
 
-# Copiar al router
-type $HOME\.ssh\mcp_openwrt.pub | ssh root@192.168.1.1 "cat >> /etc/dropbear/authorized_keys"
+# Copy to router
+ssh-copy-id -i ~/.ssh/mcp_openwrt.pub root@192.168.1.111
 
-# Actualizar .env
+# Set in .env
 # OPENWRT_KEY_FILE=/root/.ssh/mcp_openwrt
 ```
 
-### Permisos de Container
+### Container security
 
-El container está configurado con:
-- ✅ `read_only: true` - Sistema de archivos de solo lectura
-- ✅ `cap_drop: ALL` - Sin capabilities
-- ✅ `no-new-privileges` - Sin escalación de privilegios
-- ✅ SSH keys montadas como read-only
-- ✅ `/tmp` como tmpfs (volátil)
+- `read_only: true` — read-only filesystem
+- `cap_drop: ALL` — no Linux capabilities
+- `no-new-privileges` — no privilege escalation
+- SSH keys mounted read-only
+- `/tmp` as volatile tmpfs
 
 ## Troubleshooting
 
-### Container no puede conectar al router
+### Container can't reach the router
 
-```powershell
-# Verificar que router es accesible desde host
-ping 192.168.1.1
+```bash
+# Verify router is reachable from host
+ping 192.168.1.111
+ssh root@192.168.1.111 "uname -a"
 
-# Verificar SSH directo
-ssh root@192.168.1.1 "uname -a"
-
-# Si funciona, el container debería funcionar con --network host
+# With --network host, the container has the same network as the host
 ```
 
-### Permission denied en SSH
+### SSH permission denied
 
-```powershell
-# Verificar que la llave está montada
-docker run -i --rm `
-  --mount type=bind,src=$HOME\.ssh,dst=/root/.ssh,readonly `
-  openwrt-ssh-mcp:latest `
+```bash
+# Verify keys are mounted
+docker run -i --rm \
+  --mount type=bind,src=${HOME}/.ssh,dst=/root/.ssh,readonly \
+  openwrt-ssh-mcp:latest \
   ls -la /root/.ssh
-
-# Verificar permisos de la llave local
-icacls $HOME\.ssh\mcp_openwrt
 ```
 
-### MCP Server no responde en Claude
+### MCP server not detected in Claude
 
-1. Verificar que imagen existe:
-   ```powershell
-   docker images openwrt-ssh-mcp
-   ```
-
-2. Verificar logs de Claude:
-   ```powershell
-   cat "$env:APPDATA\Claude\logs\mcp*.log"
-   ```
-
+1. Verify image exists: `docker images openwrt-ssh-mcp`
+2. Check Claude logs: `cat "${HOME}/Library/Logs/Claude/mcp*.log"`
 3. Test standalone:
-   ```powershell
-   docker run -i --rm --network host --env-file .env `
-     --mount type=bind,src=$HOME\.ssh,dst=/root/.ssh,readonly `
+   ```bash
+   docker run -i --rm --network host --env-file .env \
+     --mount type=bind,src=${HOME}/.ssh,dst=/root/.ssh,readonly \
      openwrt-ssh-mcp:latest
    ```
 
 ### Container exits immediately
 
-- Verifica que `.env` existe y tiene credenciales correctas
-- Asegúrate de usar `--rm` y NO `restart: unless-stopped`
-- Confirma que `-i` (interactive) está presente
+- Verify `.env` exists with valid credentials
+- Ensure `-i` (interactive stdin) flag is present
+- Do not use `restart: unless-stopped` for MCP containers
 
 ## Multi-MCP Setup
 
-Puedes orquestar múltiples MCP servers:
+You can orchestrate multiple MCP servers:
 
 ```yaml
 # docker-compose-multi.yml
@@ -240,7 +222,7 @@ services:
     network_mode: host
     restart: "no"
 
-  # Otro MCP server (ejemplo)
+  # Another MCP server (example)
   filesystem-mcp:
     image: mcp/filesystem:latest
     stdin_open: true
@@ -266,29 +248,25 @@ Claude Desktop config:
 }
 ```
 
-## Publicar en Docker Hub
+## Publish to Docker Hub
 
-```powershell
-# Login
+```bash
 docker login
+docker tag openwrt-ssh-mcp:latest jsebgiraldo/openwrt-ssh-mcp:latest
+docker tag openwrt-ssh-mcp:latest jsebgiraldo/openwrt-ssh-mcp:0.2.0
 
-# Tag
-docker tag openwrt-ssh-mcp:latest tuusuario/openwrt-ssh-mcp:latest
-docker tag openwrt-ssh-mcp:latest tuusuario/openwrt-ssh-mcp:0.1.0
-
-# Push
-docker push tuusuario/openwrt-ssh-mcp:latest
-docker push tuusuario/openwrt-ssh-mcp:0.1.0
+docker push jsebgiraldo/openwrt-ssh-mcp:latest
+docker push jsebgiraldo/openwrt-ssh-mcp:0.2.0
 ```
 
-## Próximos Pasos
+## Next steps
 
-1. ✅ Construir imagen Docker
-2. ✅ Probar container standalone
-3. ✅ Configurar Claude Desktop
-4. ✅ Probar herramientas MCP
-5. 📝 Documentar comandos específicos para tu router
-6. 🚀 (Opcional) Publicar en Docker Hub
+1. Build Docker image
+2. Test standalone container
+3. Configure Claude Desktop
+4. Test MCP tools
+5. Document commands specific to your router
+6. (Optional) Publish to Docker Hub
 
 ## Referencias
 

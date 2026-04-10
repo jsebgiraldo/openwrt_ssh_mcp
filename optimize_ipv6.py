@@ -1,69 +1,64 @@
-"""Script para optimizar la configuración de IPv6."""
+"""Script with IPv6 optimization suggestions for OpenWRT."""
 
 import asyncio
 from openwrt_ssh_mcp.ssh_client import ssh_client
 
 async def optimize_ipv6():
-    """Sugerencias de optimización para IPv6."""
-    
+    """Print IPv6 optimization suggestions for the router."""
+
     print("=" * 70)
-    print("🔧 SUGERENCIAS DE OPTIMIZACIÓN IPv6")
+    print("IPv6 OPTIMIZATION SUGGESTIONS")
     print("=" * 70)
-    
+
     await ssh_client.connect()
-    
+
     print("""
-✅ TU CONFIGURACIÓN ACTUAL FUNCIONA BIEN
+Your current IPv6 configuration is functional. The following are
+optional improvements:
 
-Pero aquí hay algunas mejoras opcionales:
-
-1️⃣  CAMBIAR /60 a /64 en LAN (más eficiente)
+1. CHANGE /60 TO /64 ON LAN (simpler)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-   Actualmente: lan.ip6assign='60' (usa 16 subredes)
-   Recomendado:  lan.ip6assign='64' (usa 1 subred, más simple)
-   
-   Razón: Con /56 del ISP tienes 256 subredes /64 disponibles.
-          A menos que tengas múltiples VLANs, /64 es suficiente.
+   Current:     lan.ip6assign='60'  (16 subnets)
+   Recommended: lan.ip6assign='64'  (1 subnet, simpler)
 
-   Comando:
+   With a /56 from the ISP you have 256 /64 subnets available.
+   Unless you need multiple VLANs, /64 is sufficient.
+
+   Commands:
    uci set network.lan.ip6assign='64'
    uci commit network
    /etc/init.d/network restart
 
-2️⃣  HABILITAR RA (Router Advertisements) EXPLÍCITAMENTE
+2. ENABLE RA EXPLICITLY
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-   Asegura que tus dispositivos LAN reciban anuncios de red.
-   
-   Comandos:
+   Ensures LAN devices receive network advertisements.
+
+   Commands:
    uci set dhcp.lan.ra='server'
    uci set dhcp.lan.dhcpv6='server'
    uci set dhcp.lan.ra_management='1'
    uci commit dhcp
    /etc/init.d/odhcpd restart
 
-3️⃣  CONFIGURAR DNS IPv6
+3. CONFIGURE IPv6 DNS SERVERS
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-   Usa servidores DNS IPv6 para mejor rendimiento.
-   
-   DNS Públicos IPv6:
+   Public IPv6 DNS options:
    • Google:     2001:4860:4860::8888, 2001:4860:4860::8844
    • Cloudflare: 2606:4700:4700::1111, 2606:4700:4700::1001
    • Quad9:      2620:fe::fe, 2620:fe::9
-   
-   Comando:
+
+   Commands:
    uci add_list network.wan6.dns='2001:4860:4860::8888'
    uci add_list network.wan6.dns='2001:4860:4860::8844'
    uci commit network
    /etc/init.d/network restart
 
-4️⃣  VERIFICAR FIREWALL IPv6
+4. VERIFY IPv6 FIREWALL
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-   Asegúrate de que el firewall permite tráfico IPv6.
-   
-   Verificar:
+   Check:
    ip6tables -L -n -v
-   
-   Si necesitas abrir puertos (ej: servidor web):
+
+   To open a port (e.g. HTTP):
    uci add firewall rule
    uci set firewall.@rule[-1].name='Allow-HTTP-IPv6'
    uci set firewall.@rule[-1].src='wan'
@@ -74,41 +69,25 @@ Pero aquí hay algunas mejoras opcionales:
    uci commit firewall
    /etc/init.d/firewall restart
 
-5️⃣  DESHABILITAR ULA SI NO LO NECESITAS (OPCIONAL)
+5. DISABLE ULA IF NOT NEEDED (optional)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-   La dirección ULA (fd89:e85:a6f0::1) es para red local.
-   Si solo usas IPv6 público, puedes deshabilitarla.
-   
-   Comando:
+   If you only use public IPv6, you can disable ULA.
+
+   Command:
    uci set network.globals.ula_prefix=''
    uci commit network
    /etc/init.d/network restart
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-📊 ESTADO ACTUAL DE TU RED IPv6:
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-✅ Conectividad IPv6 funcional
-✅ Prefijo delegado del ISP: 2800:484:8f7e:3200::/56
-✅ LAN configurada: 2800:484:8f7e:32d0::/60
-✅ Ping a Google IPv6 exitoso
-✅ DHCPv6 activo
-
-⚠️  Áreas a considerar:
-   • Cambiar /60 a /64 para simplificar
-   • Configurar DNS IPv6 explícitamente
-   • Verificar reglas de firewall
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 """)
-    
-    # Verificar configuración DHCP actual
-    print("\n🔍 CONFIGURACIÓN DHCP/RA ACTUAL:")
+
+    # Current DHCP/RA config
+    print("CURRENT DHCP/RA CONFIGURATION:")
     print("-" * 70)
     result = await ssh_client.execute("uci show dhcp | grep -E 'dhcp.lan|ra|dhcpv6'")
     if result["success"]:
         print(result["stdout"])
-    
+
     await ssh_client.disconnect()
 
 if __name__ == "__main__":

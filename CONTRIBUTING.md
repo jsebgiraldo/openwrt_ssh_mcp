@@ -7,8 +7,8 @@ Thank you for your interest in contributing! This document provides guidelines f
 1. **Fork the repository**
 2. **Clone your fork**
    ```bash
-   git clone https://github.com/yourusername/openwrt-ssh-mcp.git
-   cd openwrt-ssh-mcp
+   git clone https://github.com/jsebgiraldo/openwrt_ssh_mcp.git
+   cd openwrt_ssh_mcp
    ```
 3. **Create a virtual environment**
    ```bash

@@ -1,5 +1,4 @@
 # OpenWRT MCP Server - Docker Helper Script
-# Facilita el uso del servidor MCP con Docker
 
 param(
     [Parameter(Position=0)]
@@ -8,7 +7,7 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
-$ProjectDir = "c:\Users\Luis Antonio\Documents\UNAL\MCPs-OpenWRT"
+$ProjectDir = "$HOME\Documents\openwrt_ssh_mcp"
 $ImageName = "openwrt-ssh-mcp:latest"
 
 function Show-Usage {
@@ -18,13 +17,13 @@ OpenWRT MCP Docker Helper
 Usage: .\docker-mcp.ps1 [action]
 
 Actions:
-  build   - Construir imagen Docker
-  run     - Ejecutar servidor MCP (interactivo)
-  test    - Probar conexión al router
-  logs    - Ver logs del servidor
-  stop    - Detener container
-  clean   - Limpiar imagen y containers
-  shell   - Abrir shell en el container
+  build   - Build Docker image
+  run     - Run MCP server (interactive)
+  test    - Test router connection
+  logs    - View server logs
+  stop    - Stop container
+  clean   - Remove image and containers
+  shell   - Open shell in container
 
 Examples:
   .\docker-mcp.ps1 build
@@ -34,36 +33,34 @@ Examples:
 }
 
 function Build-Image {
-    Write-Host "🔨 Construyendo imagen Docker..." -ForegroundColor Cyan
+    Write-Host "Building Docker image..." -ForegroundColor Cyan
     Set-Location $ProjectDir
     docker build -t $ImageName .
-    
+
     if ($LASTEXITCODE -eq 0) {
-        Write-Host "✅ Imagen construida exitosamente" -ForegroundColor Green
+        Write-Host "Image built successfully" -ForegroundColor Green
         docker images $ImageName
     } else {
-        Write-Host "❌ Error construyendo imagen" -ForegroundColor Red
+        Write-Host "Error building image" -ForegroundColor Red
         exit 1
     }
 }
 
 function Run-Server {
-    Write-Host "🚀 Iniciando servidor MCP en Docker..." -ForegroundColor Cyan
-    Write-Host "Presiona Ctrl+C para detener" -ForegroundColor Yellow
-    
+    Write-Host "Starting MCP server in Docker..." -ForegroundColor Cyan
+    Write-Host "Press Ctrl+C to stop" -ForegroundColor Yellow
+
     Set-Location $ProjectDir
-    
-    # Verificar que .env existe
+
     if (-not (Test-Path ".env")) {
-        Write-Host "❌ Archivo .env no encontrado. Copia .env.example a .env y configúralo." -ForegroundColor Red
+        Write-Host "Error: .env not found. Copy .env.example to .env and configure it." -ForegroundColor Red
         exit 1
     }
-    
-    # Crear directorio de logs si no existe
+
     if (-not (Test-Path "logs")) {
         New-Item -ItemType Directory -Path "logs" | Out-Null
     }
-    
+
     docker run -i --rm `
         --name openwrt-mcp `
         --network host `
@@ -78,86 +75,80 @@ function Run-Server {
 }
 
 function Test-Connection {
-    Write-Host "🔍 Probando conexión al router..." -ForegroundColor Cyan
-    
+    Write-Host "Testing router connection..." -ForegroundColor Cyan
+
     Set-Location $ProjectDir
-    
-    # Test rápido ejecutando un comando simple
-    Write-Host "Ejecutando test de conexión..." -ForegroundColor Yellow
-    
+
     $result = docker run -i --rm `
         --network host `
         --env-file .env `
         --mount "type=bind,src=$HOME\.ssh,dst=/root/.ssh,readonly" `
         --cap-drop ALL `
         $ImageName 2>&1 | Select-String -Pattern "SSH connection established|Connection failed|Error"
-    
+
     if ($result) {
-        Write-Host "Resultado del test:" -ForegroundColor Cyan
+        Write-Host "Test result:" -ForegroundColor Cyan
         Write-Host $result
     } else {
-        Write-Host "⏱️ Test iniciado, revisa logs/openwrt_mcp.log para detalles" -ForegroundColor Yellow
+        Write-Host "Test started — check logs/openwrt_mcp.log for details" -ForegroundColor Yellow
     }
 }
 
 function Show-Logs {
-    Write-Host "📋 Mostrando logs..." -ForegroundColor Cyan
+    Write-Host "Showing logs..." -ForegroundColor Cyan
     Set-Location $ProjectDir
-    
+
     $logFile = "logs\openwrt_mcp.log"
-    
+
     if (Test-Path $logFile) {
         Get-Content $logFile -Tail 50
-        Write-Host "`n💡 Para seguir logs en tiempo real: Get-Content $logFile -Wait" -ForegroundColor Yellow
+        Write-Host "`nTo follow logs in real time: Get-Content $logFile -Wait" -ForegroundColor Yellow
     } else {
-        Write-Host "❌ No se encontraron logs en $logFile" -ForegroundColor Red
-        Write-Host "Ejecuta primero: .\docker-mcp.ps1 run" -ForegroundColor Yellow
+        Write-Host "No logs found at $logFile" -ForegroundColor Red
+        Write-Host "Run first: .\docker-mcp.ps1 run" -ForegroundColor Yellow
     }
 }
 
 function Stop-Container {
-    Write-Host "🛑 Deteniendo container..." -ForegroundColor Cyan
-    
+    Write-Host "Stopping container..." -ForegroundColor Cyan
+
     $running = docker ps --filter "name=openwrt-mcp" -q
     if ($running) {
         docker stop openwrt-mcp
-        Write-Host "✅ Container detenido" -ForegroundColor Green
+        Write-Host "Container stopped" -ForegroundColor Green
     } else {
-        Write-Host "ℹ️  No hay container corriendo" -ForegroundColor Yellow
+        Write-Host "No container running" -ForegroundColor Yellow
     }
 }
 
 function Clean-All {
-    Write-Host "🧹 Limpiando containers e imagen..." -ForegroundColor Cyan
-    
-    # Detener container si está corriendo
+    Write-Host "Removing containers and image..." -ForegroundColor Cyan
+
     Stop-Container
-    
-    # Remover containers detenidos
+
     $containers = docker ps -a --filter "name=openwrt-mcp" -q
     if ($containers) {
         docker rm $containers
-        Write-Host "✅ Containers removidos" -ForegroundColor Green
+        Write-Host "Containers removed" -ForegroundColor Green
     }
-    
-    # Remover imagen
+
     $image = docker images -q $ImageName
     if ($image) {
-        $confirmation = Read-Host "¿Remover imagen $ImageName? (y/N)"
+        $confirmation = Read-Host "Remove image $ImageName? (y/N)"
         if ($confirmation -eq 'y' -or $confirmation -eq 'Y') {
             docker rmi $ImageName
-            Write-Host "✅ Imagen removida" -ForegroundColor Green
+            Write-Host "Image removed" -ForegroundColor Green
         }
     } else {
-        Write-Host "ℹ️  No hay imagen para remover" -ForegroundColor Yellow
+        Write-Host "No image to remove" -ForegroundColor Yellow
     }
 }
 
 function Open-Shell {
-    Write-Host "🐚 Abriendo shell en container..." -ForegroundColor Cyan
-    
+    Write-Host "Opening shell in container..." -ForegroundColor Cyan
+
     Set-Location $ProjectDir
-    
+
     docker run -it --rm `
         --name openwrt-mcp-shell `
         --network host `

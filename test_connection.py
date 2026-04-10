@@ -1,66 +1,61 @@
-"""Script simple para probar la conexión SSH a OpenWRT."""
+"""Simple script to test SSH connection to OpenWRT."""
 
 import asyncio
 import asyncssh
 import sys
 
 async def test_connection():
-    """Prueba de conexión SSH al router OpenWRT."""
-    host = "192.168.1.1"
+    """Test SSH connection to the OpenWRT router."""
+    host = "192.168.1.111"
     port = 22
     username = "root"
-    
+
     try:
-        print(f"Intentando conectar a {username}@{host}:{port}...")
-        print("Usando autenticación por clave SSH por defecto...")
-        
-        # Conectar sin contraseña, usando claves SSH por defecto
+        print(f"Connecting to {username}@{host}:{port} ...")
+        print("Using default SSH key authentication ...")
+
         conn = await asyncssh.connect(
             host=host,
             port=port,
             username=username,
-            known_hosts=None,  # Deshabilitar verificación de host
+            known_hosts=None,
             connect_timeout=10,
         )
-        
-        print("✅ Conexión SSH establecida exitosamente!")
-        
-        # Ejecutar comando de prueba
+
+        print("SSH connection established successfully!")
+
         result = await conn.run("uname -a", check=True)
-        print(f"\n📋 Información del sistema:")
+        print(f"\nSystem info:")
         print(result.stdout)
-        
-        # Obtener versión de OpenWRT
+
         result = await conn.run("cat /etc/openwrt_version 2>/dev/null || cat /etc/openwrt_release | grep DISTRIB_DESCRIPTION", check=False)
         if result.stdout:
-            print(f"🔧 Versión OpenWRT:")
+            print(f"OpenWRT version:")
             print(result.stdout)
-        
-        # Probar uci (comando específico de OpenWRT)
+
         result = await conn.run("uci show system.@system[0].hostname 2>/dev/null", check=False)
         if result.stdout:
-            print(f"\n🏠 Hostname:")
+            print(f"\nHostname:")
             print(result.stdout)
-        
+
         conn.close()
         await conn.wait_closed()
-        
-        print("\n✅ Prueba completada exitosamente!")
-        print("El servidor MCP está listo para usar con tu router OpenWRT.")
+
+        print("\nTest completed successfully!")
+        print("The MCP server is ready to use with your OpenWRT router.")
         return True
-        
+
     except asyncssh.Error as e:
-        print(f"\n❌ Error de conexión SSH: {e}")
-        print("\nPosibles soluciones:")
-        print("1. Verifica que el router esté accesible en 192.168.1.1")
-        print("2. Verifica que SSH esté habilitado en el router")
-        print("3. Asegúrate de tener tu clave SSH pública en el router:")
-        print("   - Copia tu clave: type %USERPROFILE%\\.ssh\\id_rsa.pub")
-        print("   - En el router: cat >> /etc/dropbear/authorized_keys")
-        print("4. O configura autenticación por contraseña en el archivo .env")
+        print(f"\nSSH connection error: {e}")
+        print("\nPossible fixes:")
+        print("1. Verify the router is reachable at", host)
+        print("2. Verify SSH is enabled on the router")
+        print("3. Authorize your SSH key on the router:")
+        print("   ssh-copy-id -i ~/.ssh/id_ed25519.pub root@" + host)
+        print("4. Or configure password authentication in .env")
         return False
     except Exception as e:
-        print(f"\n❌ Error inesperado: {e}")
+        print(f"\nUnexpected error: {e}")
         return False
 
 if __name__ == "__main__":

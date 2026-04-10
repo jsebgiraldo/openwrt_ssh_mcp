@@ -1,8 +1,8 @@
-# 🚀 OpenWRT SSH MCP Server v1.0.0 - Production Ready
+# OpenWRT SSH MCP Server v0.2.0 - Production Ready
 
-**Status**: ✅ Production Ready  
-**Release Date**: November 28, 2025  
-**Total Tools**: 19 (System: 8, Thread: 5, Packages: 6)
+**Status**: Production Ready
+**Release Date**: April 10, 2026
+**Total Tools**: 22 (System: 8, Thread: 6, Packages: 6, Observability: 2)
 
 ## 📦 Package Structure
 
@@ -61,12 +61,17 @@ openwrt-ssh-mcp/
 7. ✅ `openwrt_get_firewall_rules` - Get firewall rules
 8. ✅ `openwrt_read_config` - Read UCI configs
 
-### OpenThread Border Router (5 tools)
+### OpenThread Border Router (6 tools)
 9. ✅ `openwrt_thread_get_state` - Get Thread state
 10. ✅ `openwrt_thread_create_network` - Create Thread network
 11. ✅ `openwrt_thread_get_dataset` - Get network credentials
 12. ✅ `openwrt_thread_get_info` - Complete Thread info
 13. ✅ `openwrt_thread_enable_commissioner` - Enable device joining
+14. ✅ `openwrt_otbr_persist_network` - Persist dataset across reboots
+
+### Edge Observability & ThingsBoard (2 tools)
+20. ✅ `openwrt_observability_health` - Check Prometheus/Grafana/blackbox health
+21. ✅ `openwrt_thingsboard_probe` - Discover and probe ThingsBoard reachability
 
 ### Package Management (6 tools)
 14. ✅ `openwrt_opkg_update` - Update package lists
@@ -181,25 +186,23 @@ Moved to `archive/` folder (not in git):
 
 1. **Create GitHub Repository**
    ```bash
-   git init
-   git add .
-   git commit -m "feat: initial release v1.0.0"
-   git remote add origin <your-repo-url>
-   git push -u origin main
+   git clone https://github.com/jsebgiraldo/openwrt_ssh_mcp.git
+   cd openwrt_ssh_mcp
+   git checkout -b rebrand-and-edge-bringup
    ```
 
 2. **Create Release**
-   - Tag: v1.0.0
-   - Title: "OpenWRT SSH MCP Server v1.0.0"
+   - Tag: v0.2.0
+   - Title: "OpenWRT SSH MCP Server v0.2.0"
    - Copy CHANGELOG.md content
    - Attach Docker image (optional)
 
 3. **Publish Docker Image** (optional)
    ```bash
    docker login
-   docker tag openwrt-ssh-mcp:latest yourusername/openwrt-ssh-mcp:1.0.0
-   docker push yourusername/openwrt-ssh-mcp:1.0.0
-   docker push yourusername/openwrt-ssh-mcp:latest
+   docker tag openwrt-ssh-mcp:latest jsebgiraldo/openwrt-ssh-mcp:0.2.0
+   docker push jsebgiraldo/openwrt-ssh-mcp:0.2.0
+   docker push jsebgiraldo/openwrt-ssh-mcp:latest
    ```
 
 4. **Announce**
@@ -237,6 +240,7 @@ See CHANGELOG.md for planned features:
 
 ---
 
-**Ready for Production** ✅  
-**Version**: 1.0.0  
-**Date**: November 28, 2025
+**Ready for Production** ✅
+**Version**: 0.2.0
+**Date**: April 10, 2026
+**Author**: Sebastian Giraldo (https://github.com/jsebgiraldo)

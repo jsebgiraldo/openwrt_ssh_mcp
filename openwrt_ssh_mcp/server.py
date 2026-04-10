@@ -212,6 +212,105 @@ async def list_tools() -> list[Tool]:
                 "required": [],
             },
         ),
+        # OTBR Persistence
+        Tool(
+            name="openwrt_otbr_persist_network",
+            description=(
+                "Persist the active Thread dataset across reboots. "
+                "Saves the dataset TLV to /etc/otbr/, creates a reapply script, "
+                "hooks it via uci or rc.local, optionally enables otbr-agent service, "
+                "and adds /etc/otbr/ to /etc/sysupgrade.conf."
+            ),
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "dataset_path": {
+                        "type": "string",
+                        "description": "Path to save the dataset TLV file (default: /etc/otbr/active-dataset.tlvs)",
+                        "default": "/etc/otbr/active-dataset.tlvs",
+                    },
+                    "enable_service": {
+                        "type": "boolean",
+                        "description": "Enable and restart otbr-agent service (default: true)",
+                        "default": True,
+                    },
+                    "add_to_sysupgrade": {
+                        "type": "boolean",
+                        "description": "Add /etc/otbr/ to /etc/sysupgrade.conf (default: true)",
+                        "default": True,
+                    },
+                },
+                "required": [],
+            },
+        ),
+        # Edge Observability
+        Tool(
+            name="openwrt_thingsboard_probe",
+            description=(
+                "Discover ThingsBoard gateway configuration on the edge and probe "
+                "TCP/HTTP reachability. When host is not provided, auto-discovers "
+                "from process list, config files, Docker containers, and UCI config."
+            ),
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "host": {
+                        "type": "string",
+                        "description": "ThingsBoard server host. Auto-discovered when omitted.",
+                    },
+                    "mqtt_port": {
+                        "type": "integer",
+                        "description": "MQTT port to probe (default: 1883)",
+                        "default": 1883,
+                    },
+                    "mqtts_port": {
+                        "type": "integer",
+                        "description": "MQTTS port to probe (default: 8883)",
+                        "default": 8883,
+                    },
+                    "http_port": {
+                        "type": "integer",
+                        "description": "HTTP port to probe (default: 8080)",
+                        "default": 8080,
+                    },
+                    "timeout_s": {
+                        "type": "integer",
+                        "description": "Connection timeout in seconds (default: 3)",
+                        "default": 3,
+                    },
+                },
+                "required": [],
+            },
+        ),
+        Tool(
+            name="openwrt_observability_health",
+            description=(
+                "Check health of the observability stack on the edge: "
+                "Prometheus (/-/ready), Grafana (/api/health), blackbox-exporter (/-/healthy). "
+                "Also reports Docker container status and listening TCP sockets."
+            ),
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "prometheus_url": {
+                        "type": "string",
+                        "description": "Prometheus base URL (default: http://127.0.0.1:9090)",
+                        "default": "http://127.0.0.1:9090",
+                    },
+                    "grafana_url": {
+                        "type": "string",
+                        "description": "Grafana base URL (default: http://127.0.0.1:3000)",
+                        "default": "http://127.0.0.1:3000",
+                    },
+                    "blackbox_url": {
+                        "type": "string",
+                        "description": "Blackbox exporter base URL (default: http://127.0.0.1:9115)",
+                        "default": "http://127.0.0.1:9115",
+                    },
+                },
+                "required": [],
+            },
+        ),
         # Package Management (opkg) Tools
         Tool(
             name="openwrt_opkg_update",
@@ -344,6 +443,34 @@ async def call_tool(name: str, arguments: Any) -> list[TextContent]:
         elif name == "openwrt_thread_enable_commissioner":
             passphrase = arguments.get("passphrase", "THREAD123")
             result = await OpenWRTTools.thread_enable_commissioner(passphrase)
+
+        # OTBR persistence
+        elif name == "openwrt_otbr_persist_network":
+            dataset_path = arguments.get("dataset_path", "/etc/otbr/active-dataset.tlvs")
+            enable_service = arguments.get("enable_service", True)
+            add_to_sysupgrade = arguments.get("add_to_sysupgrade", True)
+            result = await OpenWRTTools.otbr_persist_network(
+                dataset_path, enable_service, add_to_sysupgrade
+            )
+
+        # Edge observability
+        elif name == "openwrt_thingsboard_probe":
+            host = arguments.get("host")
+            mqtt_port = arguments.get("mqtt_port", 1883)
+            mqtts_port = arguments.get("mqtts_port", 8883)
+            http_port = arguments.get("http_port", 8080)
+            timeout_s = arguments.get("timeout_s", 3)
+            result = await OpenWRTTools.thingsboard_probe(
+                host, mqtt_port, mqtts_port, http_port, timeout_s
+            )
+
+        elif name == "openwrt_observability_health":
+            prometheus_url = arguments.get("prometheus_url", "http://127.0.0.1:9090")
+            grafana_url = arguments.get("grafana_url", "http://127.0.0.1:3000")
+            blackbox_url = arguments.get("blackbox_url", "http://127.0.0.1:9115")
+            result = await OpenWRTTools.observability_health(
+                prometheus_url, grafana_url, blackbox_url
+            )
 
         # Package management tools
         elif name == "openwrt_opkg_update":
