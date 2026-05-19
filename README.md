@@ -13,7 +13,7 @@ A containerized MCP (Model Context Protocol) server for managing OpenWRT routers
 
 - 🐳 **Docker Ready** - Optimized image with multi-stage build (271MB)
 - 🔐 **Robust Security** - Command whitelist, read-only filesystem, audit logging
-- 🛠️ **19 OpenWRT Tools** - Complete router management (network, system, Thread, packages)
+- 🛠️ **23 OpenWRT Tools** - Complete router management (network, system, Thread, packages, firmware OTA)
 - 🚀 **Easy Integration** - Compatible with Claude Desktop and VS Code
 - 📊 **Monitoring** - Detailed logs of all operations
 - 🔄 **MCP Toolkit** - Fully compatible with Docker Desktop MCP
@@ -181,6 +181,12 @@ Use `docker-mcp.ps1` for all operations:
 - `openwrt_opkg_list_installed` - List installed packages
 - `openwrt_opkg_info` - Detailed package info
 - `openwrt_opkg_list_available` - List available packages
+
+### Firmware OTA (4 tools)
+- `openwrt_firmware_version` - Current firmware version, board model, release info
+- `openwrt_firmware_upload` - SCP a local `.img`/`.bin` to `/tmp/firmware.img` with SHA256 check
+- `openwrt_firmware_verify` - `sysupgrade -T` to validate without flashing
+- `openwrt_firmware_flash` - Flash via `sysupgrade` with optional `keep_settings` (clean install when false)
 
 ## 💬 Usage Examples
 

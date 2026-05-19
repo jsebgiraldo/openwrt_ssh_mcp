@@ -5,6 +5,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2026-05-19
+
+### Added
+- **Firmware OTA tools** (4 new MCP tools) for remote OpenWrt firmware upgrade
+  over SSH:
+  - `openwrt_firmware_version` — current firmware identity (`/etc/openwrt_version`,
+    `/etc/openwrt_release`, `ubus call system board`)
+  - `openwrt_firmware_upload` — SCP a local `.img`/`.bin` to `/tmp/firmware.img`
+    with SHA256 integrity check on both ends
+  - `openwrt_firmware_verify` — `sysupgrade -T` to validate an uploaded image
+    without flashing
+  - `openwrt_firmware_flash` — orchestrate `sysupgrade -v` (or `-n` for clean
+    install) with mandatory pre-flash `-T` verification
+
+### Security
+- Whitelist patterns added for the 8 commands the OTA flow needs
+  (`sysupgrade -v/-n/-T`, `cat /etc/openwrt_*`, `ls -la /tmp/firmware.img`,
+  `sha256sum /tmp/firmware.img`). All other `sysupgrade` invocations remain
+  rejected by `SecurityValidator`.
+
+## [1.1.0] - 2026-01-06
+
+### Added
+- Comprehensive IPv6 support and tools for OpenWRT (backfilled from commit
+  `2b9aab0`).
+
 ## [1.0.0] - 2025-11-28
 
 ### Added

@@ -1,7 +1,7 @@
 [project]
 name = "openwrt-ssh-mcp"
-version = "1.0.0"
-description = "MCP Server for OpenWRT router management via SSH with support for system, network, OpenThread, and package management"
+version = "1.2.0"
+description = "MCP Server for OpenWRT router management via SSH with support for system, network, OpenThread, packages, and firmware OTA upgrades"
 readme = "README.md"
 requires-python = ">=3.10"
 license = {text = "MIT"}
