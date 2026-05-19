@@ -740,3 +740,221 @@ class OpenWRTTools:
                 "success": False,
                 "error": result["error"],
             }
+
+    # ========== Firmware OTA / Sysupgrade Tools ==========
+
+    @staticmethod
+    async def firmware_get_version() -> dict[str, Any]:
+        """
+        Get current firmware version and board info.
+
+        Returns:
+            dict: Firmware version, board model, release info
+        """
+        try:
+            await ssh_client.ensure_connected()
+
+            info = {}
+
+            commands = {
+                "version": "cat /etc/openwrt_version",
+                "release": "cat /etc/openwrt_release",
+                "board": "ubus call system board",
+            }
+
+            for key, cmd in commands.items():
+                result = await ssh_client.execute(cmd)
+                if result["success"]:
+                    if key == "board":
+                        try:
+                            info[key] = json.loads(result["stdout"])
+                        except json.JSONDecodeError:
+                            info[key] = result["stdout"]
+                    else:
+                        info[key] = result["stdout"].strip()
+                else:
+                    info[key] = None
+
+            return {
+                "success": True,
+                "firmware_info": info,
+            }
+
+        except Exception as e:
+            logger.error(f"Failed to get firmware version: {e}")
+            return {
+                "success": False,
+                "error": str(e),
+            }
+
+    @staticmethod
+    async def firmware_upload(local_path: str) -> dict[str, Any]:
+        """
+        Upload a firmware image to the router via SCP.
+
+        Args:
+            local_path: Local path to the firmware .img or .bin file
+
+        Returns:
+            dict: Upload result with checksum info
+        """
+        try:
+            import os
+            import hashlib
+
+            if not os.path.isfile(local_path):
+                return {
+                    "success": False,
+                    "error": f"Local file not found: {local_path}",
+                }
+
+            file_size = os.path.getsize(local_path)
+
+            # Compute local SHA256
+            sha256 = hashlib.sha256()
+            with open(local_path, "rb") as f:
+                for chunk in iter(lambda: f.read(8192), b""):
+                    sha256.update(chunk)
+            local_hash = sha256.hexdigest()
+
+            await ssh_client.ensure_connected()
+
+            # Upload via SCP
+            logger.info(f"Uploading firmware ({file_size} bytes) to /tmp/firmware.img")
+            async with ssh_client.connection.start_sftp_client() as sftp:
+                await sftp.put(local_path, "/tmp/firmware.img")
+
+            # Verify remote checksum
+            result = await ssh_client.execute("sha256sum /tmp/firmware.img")
+            if result["success"]:
+                remote_hash = result["stdout"].split()[0]
+                checksum_ok = remote_hash == local_hash
+            else:
+                remote_hash = None
+                checksum_ok = False
+
+            if not checksum_ok:
+                return {
+                    "success": False,
+                    "error": "Checksum mismatch after upload",
+                    "local_sha256": local_hash,
+                    "remote_sha256": remote_hash,
+                }
+
+            return {
+                "success": True,
+                "message": "Firmware uploaded and verified",
+                "file_size": file_size,
+                "sha256": local_hash,
+                "remote_path": "/tmp/firmware.img",
+            }
+
+        except Exception as e:
+            logger.error(f"Failed to upload firmware: {e}")
+            return {
+                "success": False,
+                "error": str(e),
+            }
+
+    @staticmethod
+    async def firmware_verify() -> dict[str, Any]:
+        """
+        Verify a previously uploaded firmware image using sysupgrade -T.
+
+        Returns:
+            dict: Verification result
+        """
+        try:
+            await ssh_client.ensure_connected()
+
+            result = await ssh_client.execute("ls -la /tmp/firmware.img")
+            if not result["success"]:
+                return {
+                    "success": False,
+                    "error": "No firmware image found at /tmp/firmware.img. Upload one first.",
+                }
+
+            # sysupgrade -T tests the image without flashing
+            result = await ssh_client.execute("sysupgrade -T /tmp/firmware.img")
+            if result["success"]:
+                return {
+                    "success": True,
+                    "message": "Firmware image is valid and compatible",
+                    "output": result["stdout"],
+                }
+            else:
+                return {
+                    "success": False,
+                    "error": f"Firmware verification failed: {result['stderr']}",
+                    "output": result["stdout"],
+                }
+
+        except Exception as e:
+            logger.error(f"Failed to verify firmware: {e}")
+            return {
+                "success": False,
+                "error": str(e),
+            }
+
+    @staticmethod
+    async def firmware_flash(keep_settings: bool = True) -> dict[str, Any]:
+        """
+        Flash the uploaded firmware image using sysupgrade.
+
+        Args:
+            keep_settings: If True, preserve UCI configuration across upgrade.
+                           If False, perform a clean install (-n flag).
+
+        Returns:
+            dict: Flash initiation result
+        """
+        try:
+            await ssh_client.ensure_connected()
+
+            # Check firmware exists
+            result = await ssh_client.execute("ls -la /tmp/firmware.img")
+            if not result["success"]:
+                return {
+                    "success": False,
+                    "error": "No firmware image at /tmp/firmware.img. Upload and verify first.",
+                }
+
+            # Verify first
+            result = await ssh_client.execute("sysupgrade -T /tmp/firmware.img")
+            if not result["success"]:
+                return {
+                    "success": False,
+                    "error": f"Firmware verification failed. Will not flash. Error: {result['stderr']}",
+                }
+
+            # Flash
+            flag = "-v" if keep_settings else "-n"
+            cmd = f"sysupgrade {flag} /tmp/firmware.img"
+            logger.info(f"Initiating sysupgrade: {cmd}")
+
+            # sysupgrade will reboot the system, so the SSH connection will drop.
+            # We fire-and-forget and inform the user.
+            try:
+                result = await ssh_client.execute(cmd, timeout=10)
+            except Exception:
+                pass  # Expected: connection drops during sysupgrade
+
+            ssh_client.is_connected = False
+
+            return {
+                "success": True,
+                "message": (
+                    f"Sysupgrade initiated ({'keeping settings' if keep_settings else 'clean install'}). "
+                    "The router is rebooting with the new firmware. "
+                    "It should be available again in 2-5 minutes. "
+                    "Use openwrt_test_connection to check when it's back online."
+                ),
+                "keep_settings": keep_settings,
+            }
+
+        except Exception as e:
+            logger.error(f"Failed to flash firmware: {e}")
+            return {
+                "success": False,
+                "error": str(e),
+            }

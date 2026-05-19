@@ -103,6 +103,16 @@ class SecurityValidator:
         r"^opkg remove [a-zA-Z0-9._-]+$",
         r"^opkg upgrade [a-zA-Z0-9._-]+$",
         r"^opkg search [a-zA-Z0-9._-]+$",
+
+        # Firmware OTA / sysupgrade
+        r"^cat /etc/openwrt_version$",
+        r"^cat /etc/openwrt_release$",
+        r"^cat /etc/board\.json$",
+        r"^sha256sum /tmp/firmware\.img$",
+        r"^ls -la /tmp/firmware\.img$",
+        r"^sysupgrade -v /tmp/firmware\.img$",
+        r"^sysupgrade -n /tmp/firmware\.img$",
+        r"^sysupgrade -T /tmp/firmware\.img$",
     ]
 
     # Dangerous patterns to explicitly block

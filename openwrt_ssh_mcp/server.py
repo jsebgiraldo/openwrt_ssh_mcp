@@ -282,6 +282,67 @@ async def list_tools() -> list[Tool]:
                 "required": [],
             },
         ),
+        # Firmware OTA / Sysupgrade Tools
+        Tool(
+            name="openwrt_firmware_version",
+            description="Get current firmware version, board model, and release information",
+            inputSchema={
+                "type": "object",
+                "properties": {},
+                "required": [],
+            },
+        ),
+        Tool(
+            name="openwrt_firmware_upload",
+            description=(
+                "Upload a firmware image (.img or .bin) from the local machine to the router "
+                "via SCP. The file is placed at /tmp/firmware.img and checksum-verified."
+            ),
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "local_path": {
+                        "type": "string",
+                        "description": "Absolute local path to the firmware image file",
+                    },
+                },
+                "required": ["local_path"],
+            },
+        ),
+        Tool(
+            name="openwrt_firmware_verify",
+            description=(
+                "Verify a previously uploaded firmware image using 'sysupgrade -T'. "
+                "This tests the image without flashing it."
+            ),
+            inputSchema={
+                "type": "object",
+                "properties": {},
+                "required": [],
+            },
+        ),
+        Tool(
+            name="openwrt_firmware_flash",
+            description=(
+                "Flash the uploaded firmware image using sysupgrade. "
+                "The router will reboot after flashing. "
+                "IMPORTANT: Make sure to upload and verify the firmware first."
+            ),
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "keep_settings": {
+                        "type": "boolean",
+                        "description": (
+                            "If true, preserve UCI configuration across the upgrade. "
+                            "If false, perform a clean install (factory reset). Default: true."
+                        ),
+                        "default": True,
+                    },
+                },
+                "required": [],
+            },
+        ),
     ]
 
 
@@ -372,6 +433,23 @@ async def call_tool(name: str, arguments: Any) -> list[TextContent]:
 
         elif name == "openwrt_opkg_list_available":
             result = await OpenWRTTools.opkg_list_available()
+
+        # Firmware OTA tools
+        elif name == "openwrt_firmware_version":
+            result = await OpenWRTTools.firmware_get_version()
+
+        elif name == "openwrt_firmware_upload":
+            local_path = arguments.get("local_path")
+            if not local_path:
+                raise ValueError("Missing required argument: local_path")
+            result = await OpenWRTTools.firmware_upload(local_path)
+
+        elif name == "openwrt_firmware_verify":
+            result = await OpenWRTTools.firmware_verify()
+
+        elif name == "openwrt_firmware_flash":
+            keep_settings = arguments.get("keep_settings", True)
+            result = await OpenWRTTools.firmware_flash(keep_settings)
 
         else:
             raise ValueError(f"Unknown tool: {name}")
