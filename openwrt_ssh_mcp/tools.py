@@ -255,10 +255,64 @@ class OpenWRTTools:
             }
 
     @staticmethod
+    async def get_system_log(lines: int = 100) -> dict[str, Any]:
+        """
+        Read the system log (logread) from the OpenWRT router.
+
+        Args:
+            lines: Number of log lines to retrieve (default: 100, max: 1000)
+
+        Returns:
+            dict: System log entries
+        """
+        # Validate lines parameter
+        if not isinstance(lines, int) or lines < 1:
+            return {
+                "success": False,
+                "error": "Invalid lines parameter. Must be a positive integer.",
+            }
+        if lines > 1000:
+            lines = 1000
+
+        command = f"logread -l {lines}"
+        result = await OpenWRTTools.execute_command(command)
+
+        if result["success"]:
+            # Parse log entries
+            log_entries = []
+            for line in result["output"].strip().split("\n"):
+                if line:
+                    # Parse typical logread format: "timestamp hostname process[pid]: message"
+                    # Extract timestamp, hostname, process, and message
+                    import re
+                    match = re.match(r"^(\w{3}\s+\d+\s+\d+:\d+:\d+)\s+(\S+)\s+(\S+?)(?:\[\d+\])?:\s*(.*)$", line)
+                    if match:
+                        log_entries.append({
+                            "timestamp": match.group(1),
+                            "hostname": match.group(2),
+                            "process": match.group(3),
+                            "message": match.group(4),
+                        })
+                    else:
+                        log_entries.append({"raw": line})
+
+            return {
+                "success": True,
+                "log_entries": log_entries,
+                "count": len(log_entries),
+                "lines_requested": lines,
+            }
+        else:
+            return {
+                "success": False,
+                "error": result["error"],
+            }
+
+    @staticmethod
     async def test_connection() -> dict[str, Any]:
         """
         Test SSH connection to the router.
-        
+
         Returns:
             dict: Connection test result
         """
