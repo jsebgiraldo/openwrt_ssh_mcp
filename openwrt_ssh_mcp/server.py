@@ -113,6 +113,26 @@ async def list_tools() -> list[Tool]:
             },
         ),
         Tool(
+            name="openwrt_get_system_log",
+            description=(
+                "Read the system log (logread) from the OpenWRT router. "
+                "Returns parsed log entries with timestamp, hostname, process, and message."
+            ),
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "lines": {
+                        "type": "integer",
+                        "description": "Number of log lines to retrieve (default: 100, max: 1000)",
+                        "default": 100,
+                        "minimum": 1,
+                        "maximum": 1000,
+                    },
+                },
+                "required": [],
+            },
+        ),
+        Tool(
             name="openwrt_read_config",
             description=(
                 "Read a UCI configuration file. "
@@ -379,6 +399,10 @@ async def call_tool(name: str, arguments: Any) -> list[TextContent]:
 
         elif name == "openwrt_get_firewall_rules":
             result = await OpenWRTTools.get_firewall_rules()
+
+        elif name == "openwrt_get_system_log":
+            lines = arguments.get("lines", 100)
+            result = await OpenWRTTools.get_system_log(lines)
 
         elif name == "openwrt_read_config":
             config_name = arguments.get("config_name")

@@ -57,6 +57,9 @@ class SecurityValidator:
         r"^ping -c \d+ [\w\.\-]+$",
         r"^traceroute [\w\.\-]+$",
         r"^nslookup [\w\.\-]+$",
+
+        # System log
+        r"^logread -l \d+$",
         
         # OpenThread Border Router (OTBR) commands
         r"^(/usr/sbin/)?ot-ctl state$",
