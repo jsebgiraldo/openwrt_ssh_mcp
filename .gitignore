@@ -58,3 +58,7 @@ Thumbs.db
 
 # Archive folder (development docs)
 archive/
+
+node_modules/
+package.json
+package-lock.json
