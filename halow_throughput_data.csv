@@ -1,0 +1,19 @@
+bw_mhz,test_type,protocol,direction,target_rate_kbps,sender_kbps,receiver_kbps,retransmissions,loss_pct,lost_pkts,total_pkts,jitter_ms,duration_s,notes
+2,TCP_UP,TCP,upload,,1990,1200,0,,,,,,
+2,TCP_DOWN,TCP,download,,4270,3900,0,,,,,,
+2,UDP_500K,UDP,upload,500,500,498,,0,0,432,1.706,10,
+2,UDP_1M,UDP,upload,1000,1000,995,,0,0,864,1.941,10,
+2,UDP_2M,UDP,upload,2000,1230,1200,,0,0,1065,12.764,10,saturated at ~1.23 Mbps
+4,TCP_UP,TCP,upload,,1820,1120,13,,,,,,
+4,TCP_DOWN,TCP,download,,5740,5480,0,,,,,,
+4,UDP_500K,UDP,upload,500,166,30.1,,77,108,140,114.258,10,ANOMALOUS - transient link disruption
+4,UDP_1M,UDP,upload,1000,1000,989,,0.35,3,864,6.443,10,
+4,UDP_2M,UDP,upload,2000,1600,1520,,0.43,6,1382,13.879,10,
+4,UDP_4M,UDP,upload,4000,1430,1380,,0.65,8,1233,12.214,10,
+8,TCP_UP,TCP,upload,,1430,819,62,,,,,,3 of 5 intervals had 0 throughput
+8,TCP_DOWN,TCP,download,,6060,5630,0,,,,,,
+8,UDP_500K,UDP,upload,500,500,487,,2.1,9,432,11.591,10,
+8,UDP_1M,UDP,upload,1000,1000,716,,9.3,80,863,81.589,10,
+8,UDP_2M,UDP,upload,2000,1580,1480,,2.2,30,1344,11.268,10,
+8,UDP_4M,UDP,upload,4000,1670,1530,,2.1,30,1437,17.570,10,
+8,UDP_8M,UDP,upload,8000,1680,1580,,2.5,36,1448,8.239,10,

@@ -1,0 +1,82 @@
+
+==================================================
+TCP_UP
+==================================================
+Connecting to host 192.168.1.103, port 5201
+[  5] local 192.168.1.196 port 46085 connected to 192.168.1.103 port 5201
+[ ID] Interval           Transfer     Bitrate         Retr  Cwnd
+[  5]   0.00-3.00   sec  1.70 MBytes  4.75 Mbits/sec    0   93.3 KBytes       
+[  5]   3.00-6.00   sec   636 KBytes  1.74 Mbits/sec    0   96.2 KBytes       
+[  5]   6.00-9.00   sec   636 KBytes  1.74 Mbits/sec    0   96.2 KBytes       
+[  5]   9.00-12.00  sec  0.00 Bytes  0.00 bits/sec    0    110 KBytes       
+[  5]  12.00-15.00  sec   636 KBytes  1.74 Mbits/sec    0   99.0 KBytes       
+- - - - - - - - - - - - - - - - - - - - - - - - -
+[ ID] Interval           Transfer     Bitrate         Retr
+[  5]   0.00-15.00  sec  3.56 MBytes  1.99 Mbits/sec    0             sender
+[  5]   0.00-15.72  sec  2.25 MBytes  1.20 Mbits/sec                  receiver
+
+iperf Done.
+
+==================================================
+TCP_DOWN
+==================================================
+Connecting to host 192.168.1.103, port 5201
+Reverse mode, remote host 192.168.1.103 is sending
+[  5] local 192.168.1.196 port 50089 connected to 192.168.1.103 port 5201
+[ ID] Interval           Transfer     Bitrate
+[  5]   0.00-3.21   sec  1.50 MBytes  3.92 Mbits/sec                  
+[  5]   3.21-6.14   sec  1.38 MBytes  3.94 Mbits/sec                  
+[  5]   6.14-9.18   sec  1.38 MBytes  3.79 Mbits/sec                  
+[  5]   9.18-12.11  sec  1.38 MBytes  3.94 Mbits/sec                  
+[  5]  12.11-15.05  sec  1.38 MBytes  3.92 Mbits/sec                  
+- - - - - - - - - - - - - - - - - - - - - - - - -
+[ ID] Interval           Transfer     Bitrate         Retr
+[  5]   0.00-15.23  sec  7.76 MBytes  4.27 Mbits/sec    0             sender
+[  5]   0.00-15.05  sec  7.00 MBytes  3.90 Mbits/sec                  receiver
+
+iperf Done.
+
+==================================================
+UDP_500K
+==================================================
+Connecting to host 192.168.1.103, port 5201
+[  5] local 192.168.1.196 port 51978 connected to 192.168.1.103 port 5201
+[ ID] Interval           Transfer     Bitrate         Total Datagrams
+[  5]   0.00-5.00   sec   305 KBytes   500 Kbits/sec  216  
+[  5]   5.00-10.00  sec   305 KBytes   500 Kbits/sec  216  
+- - - - - - - - - - - - - - - - - - - - - - - - -
+[ ID] Interval           Transfer     Bitrate         Jitter    Lost/Total Datagrams
+[  5]   0.00-10.00  sec   611 KBytes   500 Kbits/sec  0.000 ms  0/432 (0%)  sender
+[  5]   0.00-10.05  sec   611 KBytes   498 Kbits/sec  1.706 ms  0/432 (0%)  receiver
+
+iperf Done.
+
+==================================================
+UDP_1M
+==================================================
+Connecting to host 192.168.1.103, port 5201
+[  5] local 192.168.1.196 port 60568 connected to 192.168.1.103 port 5201
+[ ID] Interval           Transfer     Bitrate         Total Datagrams
+[  5]   0.00-5.00   sec   611 KBytes  1.00 Mbits/sec  432  
+[  5]   5.00-10.00  sec   611 KBytes  1.00 Mbits/sec  432  
+- - - - - - - - - - - - - - - - - - - - - - - - -
+[ ID] Interval           Transfer     Bitrate         Jitter    Lost/Total Datagrams
+[  5]   0.00-10.00  sec  1.19 MBytes  1.00 Mbits/sec  0.000 ms  0/864 (0%)  sender
+[  5]   0.00-10.06  sec  1.19 MBytes   995 Kbits/sec  1.941 ms  0/864 (0%)  receiver
+
+iperf Done.
+
+==================================================
+UDP_2M
+==================================================
+Connecting to host 192.168.1.103, port 5201
+[  5] local 192.168.1.196 port 35793 connected to 192.168.1.103 port 5201
+[ ID] Interval           Transfer     Bitrate         Total Datagrams
+[  5]   0.00-5.00   sec   761 KBytes  1.25 Mbits/sec  538  
+[  5]   5.00-10.00  sec   745 KBytes  1.22 Mbits/sec  527  
+- - - - - - - - - - - - - - - - - - - - - - - - -
+[ ID] Interval           Transfer     Bitrate         Jitter    Lost/Total Datagrams
+[  5]   0.00-10.00  sec  1.47 MBytes  1.23 Mbits/sec  0.000 ms  0/1065 (0%)  sender
+[  5]   0.00-10.30  sec  1.47 MBytes  1.20 Mbits/sec  12.764 ms  0/1065 (0%)  receiver
+
+iperf Done.

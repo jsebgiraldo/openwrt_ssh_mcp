@@ -1,0 +1,97 @@
+
+==================================================
+TCP_UP
+==================================================
+Connecting to host 192.168.1.103, port 5201
+[  5] local 192.168.1.196 port 45771 connected to 192.168.1.103 port 5201
+[ ID] Interval           Transfer     Bitrate         Retr  Cwnd
+[  5]   0.00-3.00   sec  1.27 MBytes  3.54 Mbits/sec    1    107 KBytes       
+[  5]   3.00-6.00   sec   382 KBytes  1.04 Mbits/sec    0    110 KBytes       
+[  5]   6.00-9.00   sec   382 KBytes  1.04 Mbits/sec    8    107 KBytes       
+[  5]   9.00-12.00  sec   382 KBytes  1.04 Mbits/sec    2    129 KBytes       
+[  5]  12.00-15.00  sec   891 KBytes  2.43 Mbits/sec    2    130 KBytes       
+- - - - - - - - - - - - - - - - - - - - - - - - -
+[ ID] Interval           Transfer     Bitrate         Retr
+[  5]   0.00-15.00  sec  3.26 MBytes  1.82 Mbits/sec   13             sender
+[  5]   0.00-15.85  sec  2.12 MBytes  1.12 Mbits/sec                  receiver
+
+iperf Done.
+
+==================================================
+TCP_DOWN
+==================================================
+Connecting to host 192.168.1.103, port 5201
+Reverse mode, remote host 192.168.1.103 is sending
+[  5] local 192.168.1.196 port 45527 connected to 192.168.1.103 port 5201
+[ ID] Interval           Transfer     Bitrate
+[  5]   0.00-3.17   sec  1.88 MBytes  4.96 Mbits/sec                  
+[  5]   3.17-6.10   sec  2.00 MBytes  5.73 Mbits/sec                  
+[  5]   6.10-9.45   sec  1.62 MBytes  4.07 Mbits/sec                  
+[  5]   9.45-12.04  sec  1.75 MBytes  5.65 Mbits/sec                  
+[  5]  12.04-15.12  sec  2.62 MBytes  7.16 Mbits/sec                  
+- - - - - - - - - - - - - - - - - - - - - - - - -
+[ ID] Interval           Transfer     Bitrate         Retr
+[  5]   0.00-15.35  sec  10.5 MBytes  5.74 Mbits/sec    0             sender
+[  5]   0.00-15.12  sec  9.88 MBytes  5.48 Mbits/sec                  receiver
+
+iperf Done.
+
+==================================================
+UDP_500K
+==================================================
+Connecting to host 192.168.1.103, port 5201
+[  5] local 192.168.1.196 port 36604 connected to 192.168.1.103 port 5201
+[ ID] Interval           Transfer     Bitrate         Total Datagrams
+[  5]   0.00-5.00   sec   134 KBytes   220 Kbits/sec  95  
+[  5]   5.00-10.00  sec  67.9 KBytes   111 Kbits/sec  48  
+- - - - - - - - - - - - - - - - - - - - - - - - -
+[ ID] Interval           Transfer     Bitrate         Jitter    Lost/Total Datagrams
+[  5]   0.00-10.00  sec   202 KBytes   166 Kbits/sec  0.000 ms  0/143 (0%)  sender
+[  5]   0.00-12.32  sec  45.2 KBytes  30.1 Kbits/sec  114.258 ms  108/140 (77%)  receiver
+
+iperf Done.
+
+==================================================
+UDP_1M
+==================================================
+Connecting to host 192.168.1.103, port 5201
+[  5] local 192.168.1.196 port 45857 connected to 192.168.1.103 port 5201
+[ ID] Interval           Transfer     Bitrate         Total Datagrams
+[  5]   0.00-5.00   sec   611 KBytes  1.00 Mbits/sec  432  
+[  5]   5.00-10.00  sec   611 KBytes  1.00 Mbits/sec  432  
+- - - - - - - - - - - - - - - - - - - - - - - - -
+[ ID] Interval           Transfer     Bitrate         Jitter    Lost/Total Datagrams
+[  5]   0.00-10.00  sec  1.19 MBytes  1.00 Mbits/sec  0.000 ms  0/864 (0%)  sender
+[  5]   0.00-10.09  sec  1.19 MBytes   989 Kbits/sec  6.443 ms  3/864 (0.35%)  receiver
+
+iperf Done.
+
+==================================================
+UDP_2M
+==================================================
+Connecting to host 192.168.1.103, port 5201
+[  5] local 192.168.1.196 port 56608 connected to 192.168.1.103 port 5201
+[ ID] Interval           Transfer     Bitrate         Total Datagrams
+[  5]   0.00-5.00   sec  1004 KBytes  1.64 Mbits/sec  710  
+[  5]   5.00-10.00  sec   950 KBytes  1.56 Mbits/sec  672  
+- - - - - - - - - - - - - - - - - - - - - - - - -
+[ ID] Interval           Transfer     Bitrate         Jitter    Lost/Total Datagrams
+[  5]   0.00-10.00  sec  1.91 MBytes  1.60 Mbits/sec  0.000 ms  0/1382 (0%)  sender
+[  5]   0.00-10.46  sec  1.90 MBytes  1.52 Mbits/sec  13.879 ms  6/1382 (0.43%)  receiver
+
+iperf Done.
+
+==================================================
+UDP_4M
+==================================================
+Connecting to host 192.168.1.103, port 5201
+[  5] local 192.168.1.196 port 53709 connected to 192.168.1.103 port 5201
+[ ID] Interval           Transfer     Bitrate         Total Datagrams
+[  5]   0.00-5.00   sec   923 KBytes  1.51 Mbits/sec  653  
+[  5]   5.00-10.00  sec   820 KBytes  1.34 Mbits/sec  580  
+- - - - - - - - - - - - - - - - - - - - - - - - -
+[ ID] Interval           Transfer     Bitrate         Jitter    Lost/Total Datagrams
+[  5]   0.00-10.00  sec  1.70 MBytes  1.43 Mbits/sec  0.000 ms  0/1233 (0%)  sender
+[  5]   0.00-10.29  sec  1.69 MBytes  1.38 Mbits/sec  12.214 ms  8/1233 (0.65%)  receiver
+
+iperf Done.

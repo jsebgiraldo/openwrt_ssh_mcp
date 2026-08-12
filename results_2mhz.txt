@@ -1,0 +1,10 @@
+Edge: wlan0     ESSID: "UNAL-HaLow-Tesis"
+          Signal: -40 dBm  Noise: -95 dBm
+          Bit Rate: 2.2 MBit/s
+Tube assoclist: 0C:BF:74:1C:DE:87  -73 dBm / -88 dBm (SNR 15)  880 ms ago
+	RX: 0.3 MBit/s, MCS 0, 1MHz                       32 Pkts.
+	TX: 6.7 MBit/s, MCS 6, 2MHz                       13 Pkts.
+
+==================================================
+[1] TCP UPLOAD (Edge -> Tube, 15s)
+==================================================

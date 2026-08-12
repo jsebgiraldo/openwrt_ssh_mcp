@@ -1,0 +1,63 @@
+# =============================================================
+# OpenWRT Network Agent - Network Topology Configuration
+# =============================================================
+# This file defines all OpenWRT devices in your local network.
+# The agent uses this to connect and manage each device via SSH.
+# =============================================================
+
+network_name: "Red Local UNAL"
+description: "Red local con dispositivos OpenWRT - WAN Router, Edge Gateway y Router HaLow"
+wan_device: "wan_router"
+
+devices:
+  # ---- WAN Router (main internet gateway) ----
+  wan_router:
+    host: "192.168.1.1"
+    port: 22
+    user: "root"
+    # password: "your_password"      # Uncomment if using password auth
+    # key_file: "~/.ssh/id_rsa"      # Uncomment if using specific key
+    role: "wan"
+    description: "Router WAN principal - Gateway de Internet"
+    interfaces:
+      - wan
+      - lan
+    tags:
+      - gateway
+      - main
+      - internet
+
+  # ---- Edge Gateway ----
+  edge_gateway:
+    host: "192.168.1.111"
+    port: 22
+    user: "root"
+    password: "root"
+    # key_file: "~/.ssh/id_rsa"
+    role: "gateway"
+    description: "Edge Gateway - Puerta de enlace de borde"
+    interfaces:
+      - lan
+      - wan
+    tags:
+      - edge
+      - gateway
+      - iot
+
+  # ---- Router HaLow (IEEE 802.11ah) ----
+  halow_router:
+    host: "192.168.1.103"
+    port: 22
+    user: "root"
+    password: "root"
+    # key_file: "~/.ssh/id_rsa"
+    role: "router"
+    description: "Router HaLow - IEEE 802.11ah de largo alcance"
+    interfaces:
+      - lan
+      - wlan0
+    tags:
+      - halow
+      - wireless
+      - iot
+      - 802.11ah

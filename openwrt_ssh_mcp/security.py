@@ -31,6 +31,30 @@ class SecurityValidator:
         r"^uci show system$",  # System config
         r"^uci get \w+\.\S+$",  # Get specific UCI value
         
+        # UCI configuration writes (for network management agent)
+        r"^uci set \w+\.\S+=.*$",  # Set UCI value
+        r"^uci delete \w+\.\S+",  # Delete UCI entry
+        r"^uci add \w+ \w+$",  # Add UCI section
+        r"^uci commit \w+$",  # Commit UCI changes
+        
+        # Service management
+        r"^/etc/init\.d/\w+ (start|stop|restart|reload|enable|disable)$",
+        r"^wifi (up|down)$",  # WiFi up/down
+        r"^wifi down; sleep \d+; wifi up$",  # WiFi restart sequence
+        
+        # Wireless diagnostics
+        r"^iwinfo$",
+        r"^iwinfo \w+ (info|assoclist|freqlist|txpowerlist|survey)$",
+        r"^iw dev \w+ station dump$",
+        r"^iw dev \w+ link$",
+        r"^iw dev \w+ survey dump$",
+        r"^cat /sys/class/net/\w+/operstate$",
+        
+        # Network diagnostics (extended)
+        r"^ip addr show \w+$",
+        r"^ip -s link show \w+$",
+        r"^cat /proc/net/dev$",
+        
         # System information (read-only)
         r"^cat /proc/(uptime|meminfo|cpuinfo|loadavg)$",
         r"^cat /etc/openwrt_release$",
