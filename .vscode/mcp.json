@@ -1,11 +1,19 @@
 {
 	"servers": {
-		"my-mcp-server-250da806": {
+		"openwrt-single": {
 			"type": "stdio",
 			"command": "python",
 			"args": [
 				"-m",
 				"openwrt_ssh_mcp.server"
+			]
+		},
+		"openwrt-network-agent": {
+			"type": "stdio",
+			"command": "python",
+			"args": [
+				"-m",
+				"openwrt_ssh_mcp.agent_server"
 			]
 		}
 	},
